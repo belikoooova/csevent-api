@@ -28,6 +28,7 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.liquibase:liquibase-core")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    implementation("org.hibernate.validator:hibernate-validator:6.2.0.Final")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
