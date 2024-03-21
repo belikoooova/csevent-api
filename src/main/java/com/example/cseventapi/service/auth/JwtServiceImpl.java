@@ -1,7 +1,6 @@
 package com.example.cseventapi.service.auth;
 
 import com.example.cseventapi.entity.User;
-import com.example.cseventapi.service.auth.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

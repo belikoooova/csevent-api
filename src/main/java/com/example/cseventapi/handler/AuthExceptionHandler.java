@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class AuthExceptionHandler {
     private static final String REGISTER_USER_ALREADY_EXISTS = "User with such email already exists";
-    private static final String LOGIN_EMAIL_NOT_FOUND = "User with such email not exists";
     private static final String LOGIN_INCORRECT_DATA = "Incorrect email or password";
 
     @ExceptionHandler(UserWithSuchEmailAlreadyExists.class)
