@@ -1,7 +1,10 @@
 databaseChangeLog:
   - include:
-      file: _user.sql
+      file: users.sql
       relativeToChangelogFile: true
   - include:
-      file: _organisation.sql
+      file: organizations.sql
+      relativeToChangelogFile: true
+  - include:
+      file: user_organization.sql
       relativeToChangelogFile: true
