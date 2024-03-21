@@ -5,7 +5,7 @@ create table organizations
     id          uuid not null
                     constraint pk_organization
                         primary key,
-    name        varchar(255),
+    title       varchar(255),
     nickname    varchar(255),
     secret_code varchar(7)
 );
@@ -13,4 +13,4 @@ create table organizations
 --liquibase formatted sql
 --changeset Maria Belikova:2
 alter table organizations
-add constraint organisation_nickname_unique unique (nickname);
+add constraint organization_nickname_unique unique (nickname);

@@ -1,22 +1,22 @@
 package com.example.cseventapi.handler;
 
-import com.example.cseventapi.exception.UserWithSuchEmailAlreadyExists;
+import com.example.cseventapi.exception.CustomException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class AuthExceptionHandler {
-    private static final String REGISTER_USER_ALREADY_EXISTS = "User with such email already exists";
-    private static final String LOGIN_INCORRECT_DATA = "Incorrect email or password";
+    private static final String LOGIN_INCORRECT_DATA = "Неверный логин и/или пароль";
 
-    @ExceptionHandler(UserWithSuchEmailAlreadyExists.class)
-    public ResponseEntity<String> handleUserWithSuchEmailAlreadyExists(UserWithSuchEmailAlreadyExists ignored) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<String> handleCustomException(CustomException e) {
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(REGISTER_USER_ALREADY_EXISTS);
+                .status(e.getStatus())
+                .body(e.getDefaultMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
@@ -24,5 +24,14 @@ public class AuthExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(LOGIN_INCORRECT_DATA);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getFieldError() == null || ex.getFieldError().getDefaultMessage() == null
+                        ? ""
+                        : ex.getFieldError().getDefaultMessage());
     }
 }

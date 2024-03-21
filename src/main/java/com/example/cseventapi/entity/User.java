@@ -29,8 +29,9 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Column(name = "photo_url")
-    private String photoUrl;
+    @Column(name = "color")
+    @Enumerated(EnumType.STRING)
+    private Color color;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

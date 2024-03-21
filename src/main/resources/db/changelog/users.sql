@@ -10,3 +10,9 @@ create table users
     name        varchar(255),
     photo_url   text
 );
+
+--liquibase formatted sql
+--changeset Maria Belikova:2
+alter table users
+rename column photo_url to color;
+
