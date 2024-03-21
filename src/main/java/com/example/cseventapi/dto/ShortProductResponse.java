@@ -1,6 +1,6 @@
 package com.example.cseventapi.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.example.cseventapi.entity.ProductTag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,13 +12,10 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organization {
+public class ShortProductResponse {
     private UUID id;
-
-    private String title;
-
-    private String nickname;
-
-    @JsonProperty("secret_code")
-    private String secretCode;
+    private String name;
+    private ProductTag tag;
+    private String unit;
+    private Double amount;
 }

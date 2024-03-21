@@ -1,6 +1,5 @@
 package com.example.cseventapi.dto;
 
-import com.example.cseventapi.entity.Color;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -24,5 +23,5 @@ public class UpdateUserDataRequest {
     @NotBlank(message = NAME_NOT_BLANK)
     private String name;
 
-    private Color color;
+    private String color;
 }

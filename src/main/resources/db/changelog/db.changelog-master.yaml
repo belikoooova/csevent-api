@@ -8,3 +8,12 @@ databaseChangeLog:
   - include:
       file: user_organization.sql
       relativeToChangelogFile: true
+  - include:
+      file: products.sql
+      relativeToChangelogFile: true
+  - include:
+      file: warehouses.sql
+      relativeToChangelogFile: true
+  - include:
+      file: product_warehouse.sql
+      relativeToChangelogFile: true

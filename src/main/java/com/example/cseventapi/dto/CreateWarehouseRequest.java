@@ -1,20 +1,22 @@
-package com.example.cseventapi.entity;
+package com.example.cseventapi.dto;
 
-import jakarta.persistence.Embeddable;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-@Embeddable
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserOrganizationId implements Serializable {
-    private UUID userId;
+public class CreateWarehouseRequest {
+    private String name;
+
+    private String address;
+
+    @JsonProperty("organization_id")
     private UUID organizationId;
 }

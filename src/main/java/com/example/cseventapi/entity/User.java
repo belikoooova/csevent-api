@@ -29,9 +29,7 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Column(name = "color")
-    @Enumerated(EnumType.STRING)
-    private Color color;
+    private String color;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

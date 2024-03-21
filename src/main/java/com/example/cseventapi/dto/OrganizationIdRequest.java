@@ -12,13 +12,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Organization {
-    private UUID id;
-
-    private String title;
-
-    private String nickname;
-
-    @JsonProperty("secret_code")
-    private String secretCode;
+public class OrganizationIdRequest {
+    @JsonProperty("organization_id")
+    private UUID organizationId;
 }
