@@ -14,13 +14,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class EventServiceImpl {
+public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final EntityManager entityManager;
     private final OrganizationService organizationService;
     private final EventDataModelToEventDtoMapper eventDataModelToEventDtoMapper;
     private final EventDtoToEventDataModelMapper eventDtoToEventDataModelMapper;
 
+    @Override
     @Transactional
     public List<ShortEventResponse> getAll(OrganizationIdRequest request) {
         return eventDao.findAllByOrganizationId(request.getOrganizationId()).stream()
@@ -34,14 +35,17 @@ public class EventServiceImpl {
                 .toList();
     }
 
+    @Override
     @Transactional
     public Event get(UUID id) {
         return eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
     }
 
+    @Override
     @Transactional
     public Event create(CreateOrUpdateEventRequest request) {
         Event event = Event.builder()
+                .name(request.getName())
                 .address(request.getAddress())
                 .organizationId(request.getOrganizationId())
                 .guests(request.getGuests() == null ? 0 : request.getGuests())
@@ -54,6 +58,7 @@ public class EventServiceImpl {
         );
     }
 
+    @Override
     @Transactional
     public Event update(UUID id, CreateOrUpdateEventRequest request) {
         Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
@@ -68,6 +73,7 @@ public class EventServiceImpl {
         );
     }
 
+    @Override
     @Transactional
     public Event delete(UUID id) {
         Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
@@ -77,6 +83,7 @@ public class EventServiceImpl {
         return event;
     }
 
+    @Override
     @Transactional
     public List<ShortUserResponse> getOrganizers(UUID eventId, OrganizationIdRequest request) {
         List<ShortUserResponse> allMembers = organizationService.getAllMembers(request.getOrganizationId());
@@ -87,6 +94,7 @@ public class EventServiceImpl {
                 .toList();
     }
 
+    @Override
     @Transactional
     public List<ShortUserResponse> getNotOrganizers(UUID eventId, SearchNotOrganizerRequest request) {
         List<ShortUserResponse> allMembers = organizationService.getAllMembers(request.getOrganizationId());
@@ -102,12 +110,24 @@ public class EventServiceImpl {
                 .toList();
     }
 
+    @Override
+    @Transactional
     public void addOrganizer(UUID eventId, AddOrganizerRequest request) {
         entityManager.createNativeQuery(
                 "insert into user_event (user_id, event_id) " +
-                        "values (:eventId, :userId)"
+                        "values (:userId, :eventId)"
                 ).setParameter("eventId", eventId)
                 .setParameter("userId", request.getOrganizerId())
+                .executeUpdate();
+    }
+
+    @Override
+    public void deleteOrganizer(UUID eventId, UUID userId) {
+        entityManager.createNativeQuery(
+                        "delete from user_event " +
+                                "where user_id = :userId and event_id = :eventId"
+                ).setParameter("eventId", eventId)
+                .setParameter("userId", userId)
                 .executeUpdate();
     }
 }

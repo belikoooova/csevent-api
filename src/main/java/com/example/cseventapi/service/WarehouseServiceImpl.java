@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseDao warehouseDao;
     private final ProductDao productDao;
+    private final ProductService productService;
     private final WarehouseDataModelToWarehouseDtoMapper warehouseDataModelToWarehouseDtoMapper;
     private final WarehouseDtoToWarehouseDataModelMapper warehouseDtoToWarehouseDataModelMapper;
     private final ProductDataModelToProductDtoMapper productDataModelToProductDtoMapper;
@@ -75,7 +77,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductOnWarehouseRequest request) {
+    public Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductRequest request) {
         int countWithSameName = entityManager.createNativeQuery(
                         "select count(*) from products p " +
                                 "join product_warehouse pw on p.id = pw.product_id " +
@@ -88,16 +90,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new ProductWithSameNameAlreadyInWarehouseException();
         }
 
-        Product product = Product.builder()
-                .organizationId(request.getOrganizationId())
-                .unit(request.getUnit())
-                .name(request.getName())
-                .tag(request.getTag())
-                .build();
-
-        Product savedProduct = productDataModelToProductDtoMapper.map(
-                productDao.save(productDtoToProductDataModelMapper.map(product))
-        );
+        Product savedProduct = productService.getExistingOrCreateNewProduct(request);
 
         addProductToWarehouse(savedProduct.getId(), warehouseId, request.getAmount());
 
@@ -135,6 +128,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(UUID warehouseId, UUID productId) {
         entityManager.createNativeQuery(
                 "delete from product_warehouse pw " +

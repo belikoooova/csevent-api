@@ -23,3 +23,9 @@ databaseChangeLog:
   - include:
       file: user_event.sql
       relativeToChangelogFile: true
+  - include:
+      file: cocktails.sql
+      relativeToChangelogFile: true
+  - include:
+      file: cocktail_product.sql
+      relativeToChangelogFile: true

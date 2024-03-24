@@ -22,4 +22,10 @@ public interface ProductService {
 
     @Transactional
     Product delete(UUID id);
+
+    @Transactional
+    Product save(CreateNewProductRequest request);
+
+    @Transactional
+    Product getExistingOrCreateNewProduct(CreateNewProductRequest request);
 }

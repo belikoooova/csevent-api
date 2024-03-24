@@ -14,7 +14,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateNewProductOnWarehouseRequest {
+public class CreateNewProductRequest {
     private static final String NAME_NOT_BLANK = "Название не может быть пустым";
     private static final String UNIT_NOT_BLANK = "Единица измерения не может быть пустой";
     private static final String AMOUNT_NOT_BLANK = "Количество не может быть пустым";

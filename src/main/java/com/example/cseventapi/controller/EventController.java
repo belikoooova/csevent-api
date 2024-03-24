@@ -1,7 +1,7 @@
 package com.example.cseventapi.controller;
 
 import com.example.cseventapi.dto.*;
-import com.example.cseventapi.service.EventServiceImpl;
+import com.example.cseventapi.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +13,10 @@ import java.util.UUID;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventController {
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @GetMapping
-    public List<ShortEventResponse> getAll(OrganizationIdRequest request) {
+    public List<ShortEventResponse> getAll(@RequestBody @Valid OrganizationIdRequest request) {
         return eventService.getAll(request);
     }
 
@@ -25,13 +25,13 @@ public class EventController {
         return eventService.get(id);
     }
 
-    @PostMapping
-    public Event create(CreateOrUpdateEventRequest request) {
+    @PostMapping("/create")
+    public Event create(@RequestBody @Valid CreateOrUpdateEventRequest request) {
         return eventService.create(request);
     }
 
     @PutMapping("/{id}")
-    public Event update(@PathVariable UUID id, CreateOrUpdateEventRequest request) {
+    public Event update(@PathVariable UUID id, @RequestBody @Valid CreateOrUpdateEventRequest request) {
         return eventService.update(id, request);
     }
 
@@ -59,5 +59,10 @@ public class EventController {
     @PostMapping("/{id}/organizers")
     public void addOrganizer(@PathVariable UUID id, @RequestBody @Valid AddOrganizerRequest request) {
         eventService.addOrganizer(id, request);
+    }
+
+    @DeleteMapping("/{eventId}/organizers/{organizerId}")
+    public void deleteOrganizer(@PathVariable UUID eventId, @PathVariable UUID organizerId) {
+        eventService.deleteOrganizer(eventId, organizerId);
     }
 }

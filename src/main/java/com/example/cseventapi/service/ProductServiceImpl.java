@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -19,6 +20,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDao productDao;
     private final EntityManager entityManager;
     private final ProductDataModelToProductDtoMapper productDataModelToProductDtoMapper;
+    private final ProductDtoToProductDataModelMapper productDtoToProductDataModelMapper;
 
     @Override
     @Transactional
@@ -86,6 +88,49 @@ public class ProductServiceImpl implements ProductService {
         Product product = productDao.findById(id).get();
         productDao.deleteById(id);
         return productDataModelToProductDtoMapper.map(product);
+    }
+
+    @Override
+    @Transactional
+    public com.example.cseventapi.dto.Product save(CreateNewProductRequest request) {
+        com.example.cseventapi.dto.Product product = com.example.cseventapi.dto.Product.builder()
+                .organizationId(request.getOrganizationId())
+                .unit(request.getUnit())
+                .name(request.getName())
+                .tag(request.getTag())
+                .build();
+
+        return productDataModelToProductDtoMapper.map(
+                productDao.save(productDtoToProductDataModelMapper.map(product))
+        );
+    }
+
+    @Override
+    @Transactional
+    public com.example.cseventapi.dto.Product getExistingOrCreateNewProduct(CreateNewProductRequest request) {
+        com.example.cseventapi.dto.Product product;
+
+        Optional<Product> productModel = productDao.findByNameAndTagAndUnitAndOrganizationId(
+                request.getName(),
+                request.getTag(),
+                request.getUnit(),
+                request.getOrganizationId()
+        );
+
+        if (productModel.isPresent()) {
+            product = productDataModelToProductDtoMapper.map(productModel.get());
+        } else {
+            product = com.example.cseventapi.dto.Product.builder()
+                    .organizationId(request.getOrganizationId())
+                    .unit(request.getUnit())
+                    .name(request.getName())
+                    .tag(request.getTag())
+                    .build();
+        }
+
+        return productDataModelToProductDtoMapper.map(
+                productDao.save(productDtoToProductDataModelMapper.map(product))
+        );
     }
 
     private Double getTotalProductAmount(UUID organizationId, UUID productId) {

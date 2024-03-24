@@ -20,7 +20,7 @@ public interface WarehouseService {
     List<ShortProductResponse> getProductsForAutocompleteField(UUID warehouseId);
 
     @Transactional
-    Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductOnWarehouseRequest request);
+    Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductRequest request);
 
     @Transactional
     Product update(UUID warehouseId, UpdateProductRequest request);

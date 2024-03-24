@@ -46,7 +46,7 @@ public class WarehouseController {
     }
 
     @PostMapping("/{id}/save-product")
-    public Product saveNewProduct(@PathVariable UUID id, @RequestBody @Valid CreateNewProductOnWarehouseRequest request) {
+    public Product saveNewProduct(@PathVariable UUID id, @RequestBody @Valid CreateNewProductRequest request) {
         return warehouseService.saveNewProductOnWarehouse(id, request);
     }
 

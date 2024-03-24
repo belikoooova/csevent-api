@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -76,41 +73,48 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public List<ShortUserResponse> getAllMembers(UUID organizationId) {
+        List<Object[]> usersInOrganization = entityManager.createNativeQuery(
+                        "select u.id, u.name, u.color from users u " +
+                                "join user_organization uo on uo.user_id = u.id " +
+                                "where uo.organization_id = :organizationId"
+                ).setParameter("organizationId", organizationId)
+                .getResultList();
+
         List<Object[]> objects = entityManager.createNativeQuery(
-                        "select u.id, u.name, u.color, e.id, e.name, e.color from users u " +
+                        "select u.id, e.id, e.name, e.color from users u " +
                                 "join user_event ue on ue.user_id = u.id " +
                                 "join events e on ue.event_id = e.id " +
                                 "where e.organization_id = :organizationId"
                 ).setParameter("organizationId", organizationId)
                 .getResultList();
 
-        return mapToListShortUserResponse(objects);
+        return mapToListShortUserResponse(usersInOrganization, objects);
     }
 
-    private List<ShortUserResponse> mapToListShortUserResponse(List<Object[]> objects) {
+    private List<ShortUserResponse> mapToListShortUserResponse(List<Object[]> usersInOrganization, List<Object[]> objects) {
         Map<UUID, ShortUserResponse> usersMap = new HashMap<>();
+
+        usersInOrganization.stream().forEach(
+                o -> {
+                    UUID userId = (UUID) o[0];
+                    usersMap.put(userId, ShortUserResponse.builder()
+                            .id(userId)
+                            .name((String) o[1])
+                            .color((String) o[2])
+                            .tags(new ArrayList<>())
+                            .build());
+                }
+        );
 
         for (Object[] row : objects) {
             UUID userId = (UUID) row[0];
-            String userName = (String) row[1];
-            String userColor = (String) row[2];
-            UUID eventId = (UUID) row[3];
-            String eventName = (String) row[4];
-            String eventColor = (String) row[5];
+            UUID eventId = (UUID) row[1];
+            String eventName = (String) row[2];
+            String eventColor = (String) row[3];
 
             EventTag eventTag = new EventTag(eventId, eventName, eventColor);
 
-            if (usersMap.containsKey(userId)) {
-                usersMap.get(userId).getTags().add(eventTag);
-            } else {
-                ShortUserResponse user = ShortUserResponse.builder()
-                        .id(userId)
-                        .name(userName)
-                        .color(userColor)
-                        .tags(List.of(eventTag))
-                        .build();
-                usersMap.put(userId, user);
-            }
+            usersMap.get(userId).getTags().add(eventTag);
         }
 
         return usersMap.values().stream().toList();
