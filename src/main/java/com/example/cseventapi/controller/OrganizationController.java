@@ -15,12 +15,12 @@ public class OrganizationController {
     private final OrganizationService organizationService;
 
     @PostMapping("/create")
-    public Organization getCurrentUser(@RequestBody @Valid CreateOrganizationRequest request) {
+    public Organization create(@RequestBody @Valid CreateOrganizationRequest request) {
         return organizationService.create(request);
     }
 
     @PostMapping("/sign-in")
-    public Organization editCurrentUser(@RequestBody @Valid SignInOrganizationRequest request) {
+    public Organization signIn(@RequestBody @Valid SignInOrganizationRequest request) {
         return organizationService.signIn(request);
     }
 }

@@ -55,7 +55,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User updateUserData(UpdateUserDataRequest request) {
         User user = getCurrentUser();
-        user.setEmail(request.getEmail());
         user.setName(request.getName());
         user.setColor(request.getColor());
         return userDao.save(user);
