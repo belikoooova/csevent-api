@@ -15,4 +15,3 @@ create table users
 --changeset Maria Belikova:2
 alter table users
 rename column photo_url to color;
-

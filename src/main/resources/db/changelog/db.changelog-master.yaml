@@ -17,3 +17,9 @@ databaseChangeLog:
   - include:
       file: product_warehouse.sql
       relativeToChangelogFile: true
+  - include:
+      file: events.sql
+      relativeToChangelogFile: true
+  - include:
+      file: user_event.sql
+      relativeToChangelogFile: true

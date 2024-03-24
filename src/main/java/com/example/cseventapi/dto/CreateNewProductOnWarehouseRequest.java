@@ -22,7 +22,6 @@ public class CreateNewProductOnWarehouseRequest {
     private static final String ORG_ID_NOT_BLANK = "ID организации не может быть пустым";
     private static final String POSITIVE_AMOUNT = "Количество должно быть неотрицательным";
 
-
     @NotBlank(message = NAME_NOT_BLANK)
     private String name;
 
