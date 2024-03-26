@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class CreateOrUpdateCocktailRequest {
     private static final String NAME_NOT_BLANK = "Название не может быть пустым";
     private static final String TYPE_NOT_NULL = "Тип пуст или некорректен";
-    private static final String EVENT_ID_NOT_BLANK = "ID организации не может быть пустым";
 
     @NotBlank(message = NAME_NOT_BLANK)
     private String name;

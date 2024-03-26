@@ -2,9 +2,11 @@ package com.example.cseventapi.controller;
 
 import com.example.cseventapi.dto.ProductWithWarehousesResponse;
 import com.example.cseventapi.dto.ShoppingItemInfoResponse;
+import com.example.cseventapi.dto.ShoppingItemRequest;
 import com.example.cseventapi.dto.ShoppingItemResponse;
 import com.example.cseventapi.service.ProductService;
 import com.example.cseventapi.service.ShoppingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,5 +50,15 @@ public class ShoppingController {
             @PathVariable UUID productId
     ) {
         return productService.getProductWithWarehouses(productId);
+    }
+
+    @PutMapping("/{productId}")
+    public void update(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID productId,
+            @RequestBody @Valid ShoppingItemRequest request
+    ) {
+        shoppingService.update(eventId, productId, request);
     }
 }

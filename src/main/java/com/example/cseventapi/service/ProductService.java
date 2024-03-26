@@ -16,7 +16,7 @@ public interface ProductService {
     List<ShortProductResponse> getFilteredListProduct(UUID organizationId, List<ProductTag> tags);
 
     @Transactional
-    List<ShortProductResponse> getSearchedListProduct(UUID organizationId, String substring);
+    List<ShortProductResponse> getSearchedListProduct(UUID organizationId, SearchRequest request);
 
     @Transactional
     ProductWithWarehousesResponse getProductWithWarehouses(UUID productId);

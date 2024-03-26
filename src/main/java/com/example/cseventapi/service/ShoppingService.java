@@ -1,6 +1,7 @@
 package com.example.cseventapi.service;
 
 import com.example.cseventapi.dto.ShoppingItemInfoResponse;
+import com.example.cseventapi.dto.ShoppingItemRequest;
 import com.example.cseventapi.dto.ShoppingItemResponse;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,4 +17,6 @@ public interface ShoppingService {
 
     @Transactional
     ShoppingItemInfoResponse getInfoAboutProduct(UUID eventId, UUID productId);
+
+    void update(UUID eventId, UUID productId, ShoppingItemRequest request);
 }

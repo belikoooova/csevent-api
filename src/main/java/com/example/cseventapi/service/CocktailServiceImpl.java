@@ -160,7 +160,7 @@ public class CocktailServiceImpl implements CocktailService {
     @Override
     @Transactional
     public Product saveNewProductInCocktail(UUID organizationId, UUID cocktailId, UUID eventId, CreateOrUpdateProductRequest request) {
-        int countWithSameName = (int) entityManager.createNativeQuery(
+        Number countWithSameName = (Number) entityManager.createNativeQuery(
                         "select count(*) from products p " +
                                 "join cocktail_product cp on p.id = cp.product_id " +
                                 "where cp.cocktail_id = :cocktailId and p.name = :name"
@@ -168,7 +168,7 @@ public class CocktailServiceImpl implements CocktailService {
                 .setParameter("cocktailId", cocktailId)
                 .getSingleResult();
 
-        if (countWithSameName != 0) {
+        if (countWithSameName.longValue() != 0) {
             throw new ProductWithSameNameAlreadyInCocktailException();
         }
 
@@ -225,14 +225,14 @@ public class CocktailServiceImpl implements CocktailService {
     }
 
     private void addProductToEvent(UUID productId, UUID eventId) {
-        int count = (int) entityManager.createNativeQuery(
+        Number count = (Number) entityManager.createNativeQuery(
                 "select count(*) from event_product ep " +
                         "where ep.event_id = :eventId and ep.product_id = :productId"
         ).setParameter("eventId", eventId)
         .setParameter("productId", productId)
         .getSingleResult();
 
-        if (count > 0) {
+        if (count.longValue() > 0) {
             return;
         }
 
@@ -245,13 +245,13 @@ public class CocktailServiceImpl implements CocktailService {
     }
 
     private void deleteProductFromEvent(UUID productId, UUID eventId) {
-        int count = (int) entityManager.createNativeQuery(
+        Number count = (Number) entityManager.createNativeQuery(
                         "select count(*) from cocktail_product cp " +
                                 "where cp.product_id = :productId"
                 ).setParameter("productId", productId)
                 .getSingleResult();
 
-        if (count > 0) {
+        if (count.longValue() > 0) {
             return;
         }
 

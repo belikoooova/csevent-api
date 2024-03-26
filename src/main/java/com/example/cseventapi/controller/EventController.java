@@ -25,7 +25,7 @@ public class EventController {
         return eventService.get(eventId);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public Event create(@PathVariable UUID organizationId, @RequestBody @Valid CreateOrUpdateEventRequest request) {
         return eventService.create(organizationId, request);
     }

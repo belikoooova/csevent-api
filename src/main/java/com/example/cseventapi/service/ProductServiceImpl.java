@@ -53,13 +53,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getSearchedListProduct(UUID organizationId, String substring) {
-        if (substring.isEmpty()) {
+    public List<ShortProductResponse> getSearchedListProduct(UUID organizationId, SearchRequest request) {
+        if (request.getSubstring().isEmpty()) {
             return getProductsWithGeneralAmount(organizationId);
         }
 
         return getProductsWithGeneralAmount(organizationId).stream()
-                .filter(p -> p.getName().toLowerCase().contains(substring.toLowerCase()))
+                .filter(p -> p.getName().toLowerCase().contains(request.getSubstring().toLowerCase()))
                 .toList();
     }
 

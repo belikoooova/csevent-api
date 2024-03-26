@@ -1,6 +1,7 @@
 package com.example.cseventapi.service;
 
 import com.example.cseventapi.dto.ShoppingItemInfoResponse;
+import com.example.cseventapi.dto.ShoppingItemRequest;
 import com.example.cseventapi.dto.ShoppingItemResponse;
 import com.example.cseventapi.entity.Product;
 import com.example.cseventapi.repository.EventDao;
@@ -97,5 +98,20 @@ public class ShoppingServiceImpl implements ShoppingService {
                 .price(price)
                 .toBuyAmount(toBuyAmount)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void update(UUID eventId, UUID productId, ShoppingItemRequest request) {
+        entityManager.createNativeQuery(
+                "update event_product " +
+                        "set to_buy_amount = :toBuy, price = :price " +
+                        "where event_id = :eventId and product_id = :productId"
+                )
+                .setParameter("toBuy", request.getToBuyAmount())
+                .setParameter("price", request.getPrice())
+                .setParameter("eventId", eventId)
+                .setParameter("productId", productId)
+                .executeUpdate();
     }
 }

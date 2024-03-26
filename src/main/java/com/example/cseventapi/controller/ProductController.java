@@ -21,12 +21,12 @@ public class ProductController {
         return productService.getProductsWithGeneralAmount(organizationId);
     }
 
-    @GetMapping("/search/{substring}")
+    @GetMapping("/search")
     public List<ShortProductResponse> getAllSearched(
             @PathVariable UUID organizationId,
-            @PathVariable String substring
+            @RequestBody SearchRequest request
     ) {
-        return productService.getSearchedListProduct(organizationId, substring);
+        return productService.getSearchedListProduct(organizationId, request);
     }
 
     @GetMapping("/filter")
