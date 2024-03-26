@@ -28,4 +28,7 @@ public interface ProductService {
 
     @Transactional
     Product getExistingOrCreateNewProduct(CreateNewProductRequest request);
+
+    @Transactional
+    Double getTotalProductAmount(UUID productId);
 }

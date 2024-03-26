@@ -82,10 +82,10 @@ public class CocktailServiceImpl implements CocktailService {
                 .build();
 
         List<Object[]> objects = entityManager.createNativeQuery(
-                "select p.id, p.name, p.tag, cp.amount from cocktails c " +
-                        "join cocktail_product cp on c.id = cp.cocktail_id " +
-                        "join products p on cp.product_id = p.id " +
-                        "where c.id = :cocktailId"
+                        "select p.id, p.name, p.tag, cp.amount from cocktails c " +
+                                "join cocktail_product cp on c.id = cp.cocktail_id " +
+                                "join products p on cp.product_id = p.id " +
+                                "where c.id = :cocktailId"
                 ).setParameter("cocktailId", cocktailId)
                 .getResultList();
 
@@ -107,6 +107,20 @@ public class CocktailServiceImpl implements CocktailService {
     @Transactional
     public Cocktail delete(UUID cocktailId) {
         Cocktail cocktail = cocktailDataModelToCocktailDtoMapper.map(cocktailDao.findById(cocktailId).get());
+
+        List<Object[]> productIds = entityManager.createNativeQuery(
+                "select cp.product_id from cocktail_product cp " +
+                        "where cp.cocktail_id = :cocktailId"
+        ).setParameter("cocktailId", cocktailId)
+        .getResultList();
+
+        productIds.forEach(
+                o -> {
+                    UUID productId = (UUID) o[0];
+                    deleteProductFromEvent(productId, cocktail.getEventId());
+                }
+        );
+
         cocktailDao.deleteById(cocktailId);
         return cocktail;
     }
@@ -114,12 +128,16 @@ public class CocktailServiceImpl implements CocktailService {
     @Override
     @Transactional
     public void deleteProduct(UUID cocktailId, UUID productId) {
+        UUID eventId = cocktailDao.findById(cocktailId).get().getEventId();
+
         entityManager.createNativeQuery(
                         "delete from cocktail_product cp " +
                                 "where cp.cocktail_id = :cocktailId and cp.product_id = :productId"
                 ).setParameter("cocktailId", cocktailId)
                 .setParameter("productId", productId)
                 .executeUpdate();
+
+        deleteProductFromEvent(productId, eventId);
     }
 
     @Override
@@ -134,20 +152,22 @@ public class CocktailServiceImpl implements CocktailService {
     @Override
     @Transactional
     public Product saveNewProductInCocktail(UUID cocktailId, CreateNewProductRequest request) {
-        int countWithSameName = entityManager.createNativeQuery(
+        int countWithSameName = (int) entityManager.createNativeQuery(
                         "select count(*) from products p " +
                                 "join cocktail_product cp on p.id = cp.product_id " +
                                 "where cp.cocktail_id = :cocktailId and p.name = :name"
                 ).setParameter("name", request.getName())
                 .setParameter("cocktailId", cocktailId)
-                .getFirstResult();
+                .getSingleResult();
 
         if (countWithSameName != 0) {
             throw new ProductWithSameNameAlreadyInCocktailException();
         }
 
         Product savedProduct = productService.getExistingOrCreateNewProduct(request);
+        UUID eventId = cocktailDao.findById(cocktailId).get().getEventId();
 
+        addProductToEvent(savedProduct.getId(), eventId);
         addProductToCocktail(savedProduct.getId(), cocktailId, request.getAmount());
 
         return savedProduct;
@@ -180,9 +200,9 @@ public class CocktailServiceImpl implements CocktailService {
         List<Object[]> results = entityManager.createNativeQuery(
                         "select p.id, p.name, p.unit, p.tag from products p " +
                                 "where p.organization_id = :organizationId and p.id not in (" +
-                                    "select p1.id from products p1 " +
-                                    "join cocktail_product cp1 on p1.id = cp1.product_id " +
-                                    "where cp1.cocktail_id = :cocktailId" +
+                                "select p1.id from products p1 " +
+                                "join cocktail_product cp1 on p1.id = cp1.product_id " +
+                                "where cp1.cocktail_id = :cocktailId" +
                                 ")"
                 ).setParameter("organizationId", organizationId)
                 .setParameter("cocktailId", cocktailId)
@@ -198,7 +218,7 @@ public class CocktailServiceImpl implements CocktailService {
                         .name((String) o[1])
                         .unit((String) o[2])
                         .tag(ProductTag.valueOf((String) o[3]))
-                        .amount(o.length == 5 ? (Double)o[4] : 0)
+                        .amount(o.length == 5 ? (Double) o[4] : 0)
                         .build()
                 ).toList();
     }
@@ -210,6 +230,45 @@ public class CocktailServiceImpl implements CocktailService {
                 ).setParameter("productId", productId)
                 .setParameter("cocktailId", cocktailId)
                 .setParameter("amount", amount)
+                .executeUpdate();
+    }
+
+    private void addProductToEvent(UUID productId, UUID eventId) {
+        int count = (int) entityManager.createNativeQuery(
+                "select count(*) from event_product ep " +
+                        "where ep.event_id = :eventId and ep.product_id = :productId"
+        ).setParameter("eventId", eventId)
+        .setParameter("productId", productId)
+        .getSingleResult();
+
+        if (count > 0) {
+            return;
+        }
+
+        entityManager.createNativeQuery(
+                        "insert into event_product (product_id, event_id) " +
+                                "values (:productId, :eventId)"
+                ).setParameter("productId", productId)
+                .setParameter("eventId", eventId)
+                .executeUpdate();
+    }
+
+    private void deleteProductFromEvent(UUID productId, UUID eventId) {
+        int count = (int) entityManager.createNativeQuery(
+                        "select count(*) from cocktail_product cp " +
+                                "where cp.product_id = :productId"
+                ).setParameter("productId", productId)
+                .getSingleResult();
+
+        if (count > 0) {
+            return;
+        }
+
+        entityManager.createNativeQuery(
+                        "delete from event_product ep " +
+                                "where ep.event_id = :eventId and ep.product_id = :productId"
+                ).setParameter("eventId", eventId)
+                .setParameter("productId", productId)
                 .executeUpdate();
     }
 }

@@ -33,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
                         .name(p.getName())
                         .unit(p.getUnit())
                         .tag(p.getTag())
-                        .amount(getTotalProductAmount(request.getOrganizationId(), p.getId()))
+                        .amount(getTotalProductAmount(p.getId()))
                         .build())
                 .toList();
     }
@@ -133,14 +133,14 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
-    private Double getTotalProductAmount(UUID organizationId, UUID productId) {
+    @Override
+    @Transactional
+    public Double getTotalProductAmount(UUID productId) {
         Number result = (Number) entityManager.createNativeQuery(
                         "select sum(amount) from products p " +
                                 "join product_warehouse pw on p.id = pw.product_id " +
-                                "where p.organization_id = :organizationId " +
                                 "and p.id = :productId"
-                ).setParameter("organizationId", organizationId)
-                .setParameter("productId", productId)
+                ).setParameter("productId", productId)
                 .getSingleResult();
         return result != null ? result.doubleValue() : 0.0;
     }
