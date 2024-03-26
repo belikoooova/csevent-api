@@ -10,53 +10,90 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cocktails")
+@RequestMapping("/organizations/{organizationId}/events/{eventId}/cocktails")
 @RequiredArgsConstructor
 public class CocktailController {
     private final CocktailService cocktailService;
 
     @GetMapping
-    public List<CocktailWithIngredientsResponse> getAll(@RequestBody EventIdRequest request) {
-        return cocktailService.getAll(request);
+    public List<CocktailWithIngredientsResponse> getAll(@PathVariable UUID organizationId, @PathVariable UUID eventId) {
+        return cocktailService.getAll(eventId);
     }
 
-    @GetMapping("/{id}")
-    public CocktailWithIngredientsResponse get(@PathVariable UUID id) {
-        return cocktailService.get(id);
+    @GetMapping("/{cocktailId}")
+    public CocktailWithIngredientsResponse get(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId
+    ) {
+        return cocktailService.get(cocktailId);
     }
 
     @PostMapping
-    public Cocktail create(@RequestBody CreateOrUpdateCocktailRequest request) {
-        return cocktailService.create(request);
+    public Cocktail create(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @RequestBody @Valid CreateOrUpdateCocktailRequest request
+    ) {
+        return cocktailService.create(eventId, request);
     }
 
-    @PutMapping("/{id}")
-    public Cocktail update(@PathVariable UUID id, @RequestBody CreateOrUpdateCocktailRequest request) {
-        return cocktailService.update(id, request);
+    @PutMapping("/{cocktailId}")
+    public Cocktail update(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId,
+            @RequestBody CreateOrUpdateCocktailRequest request
+    ) {
+        return cocktailService.update(cocktailId, request);
     }
 
-    @DeleteMapping("/{id}")
-    public Cocktail delete(@PathVariable UUID id) {
-        return cocktailService.delete(id);
+    @DeleteMapping("/{cocktailId}")
+    public Cocktail delete(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId
+    ) {
+        return cocktailService.delete(cocktailId);
     }
 
-    @DeleteMapping("/{cocktailId}/delete-product/{productId}")
-    public void deleteProduct(@PathVariable UUID cocktailId, @PathVariable UUID productId) {
+    @DeleteMapping("/{cocktailId}/products/{productId}")
+    public void deleteProduct(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId,
+            @PathVariable UUID productId
+    ) {
         cocktailService.deleteProduct(cocktailId, productId);
     }
 
-    @GetMapping("/{id}/get-product-hints")
-    public List<ShortProductResponse> getHintsForAutocompleteField(@PathVariable UUID id) {
-        return cocktailService.getProductsForAutocompleteField(id);
+    @GetMapping("/{cocktailId}/products/get-hints")
+    public List<ShortProductResponse> getHintsForAutocompleteField(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId
+    ) {
+        return cocktailService.getProductsForAutocompleteField(organizationId, cocktailId);
     }
 
-    @PostMapping("/{id}/save-product")
-    public Product saveNewProduct(@PathVariable UUID id, @RequestBody @Valid CreateNewProductRequest request) {
-        return cocktailService.saveNewProductInCocktail(id, request);
+    @PostMapping("/{cocktailId}/products")
+    public Product saveNewProduct(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId,
+            @RequestBody @Valid CreateOrUpdateProductRequest request
+    ) {
+        return cocktailService.saveNewProductInCocktail(organizationId, cocktailId, eventId, request);
     }
 
-    @PutMapping("/{id}/update-product")
-    public Product updateProduct(@PathVariable UUID id, @RequestBody @Valid UpdateProductRequest request) {
-        return cocktailService.updateProduct(id, request);
+    @PutMapping("/{cocktailId}/products/{productId}")
+    public Product updateProduct(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID cocktailId,
+            @PathVariable UUID productId,
+            @RequestBody @Valid CreateOrUpdateProductRequest request
+    ) {
+        return cocktailService.updateProduct(cocktailId, productId, request);
     }
 }

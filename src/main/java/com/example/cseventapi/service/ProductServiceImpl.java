@@ -2,6 +2,7 @@ package com.example.cseventapi.service;
 
 import com.example.cseventapi.dto.*;
 import com.example.cseventapi.entity.Product;
+import com.example.cseventapi.entity.ProductTag;
 import com.example.cseventapi.mapper.ProductDataModelToProductDtoMapper;
 import com.example.cseventapi.mapper.ProductDtoToProductDataModelMapper;
 import com.example.cseventapi.repository.ProductDao;
@@ -24,8 +25,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getProductsWithGeneralAmount(OrganizationIdRequest request) {
-        List<Product> products = productDao.findAllByOrganizationId(request.getOrganizationId());
+    public List<ShortProductResponse> getProductsWithGeneralAmount(UUID organizationId) {
+        List<Product> products = productDao.findAllByOrganizationId(organizationId);
 
         return products.stream()
                 .map(p -> ShortProductResponse.builder()
@@ -33,40 +34,32 @@ public class ProductServiceImpl implements ProductService {
                         .name(p.getName())
                         .unit(p.getUnit())
                         .tag(p.getTag())
-                        .amount(getTotalProductAmount(request.getOrganizationId(), p.getId()))
+                        .amount(getTotalProductAmount(p.getId()))
                         .build())
                 .toList();
     }
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getFilteredListProduct(FilterProductsRequest request) {
-        OrganizationIdRequest organizationIdRequest = OrganizationIdRequest.builder()
-                .organizationId(request.getOrganizationId())
-                .build();
-
-        if (request.getTags().isEmpty()) {
-            return getProductsWithGeneralAmount(organizationIdRequest);
+    public List<ShortProductResponse> getFilteredListProduct(UUID organizationId, List<ProductTag> tags) {
+        if (tags.isEmpty()) {
+            return getProductsWithGeneralAmount(organizationId);
         }
 
-        return getProductsWithGeneralAmount(organizationIdRequest).stream()
-                .filter(p -> request.getTags().contains(p.getTag()))
+        return getProductsWithGeneralAmount(organizationId).stream()
+                .filter(p -> tags.contains(p.getTag()))
                 .toList();
     }
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getSearchedListProduct(SearchProductRequest request) {
-        OrganizationIdRequest organizationIdRequest = OrganizationIdRequest.builder()
-                .organizationId(request.getOrganizationId())
-                .build();
-
-        if (request.getSubstring().isEmpty()) {
-            return getProductsWithGeneralAmount(organizationIdRequest);
+    public List<ShortProductResponse> getSearchedListProduct(UUID organizationId, String substring) {
+        if (substring.isEmpty()) {
+            return getProductsWithGeneralAmount(organizationId);
         }
 
-        return getProductsWithGeneralAmount(organizationIdRequest).stream()
-                .filter(p -> p.getName().toLowerCase().contains(request.getSubstring().toLowerCase()))
+        return getProductsWithGeneralAmount(organizationId).stream()
+                .filter(p -> p.getName().toLowerCase().contains(substring.toLowerCase()))
                 .toList();
     }
 
@@ -92,36 +85,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public com.example.cseventapi.dto.Product save(CreateNewProductRequest request) {
-        com.example.cseventapi.dto.Product product = com.example.cseventapi.dto.Product.builder()
-                .organizationId(request.getOrganizationId())
-                .unit(request.getUnit())
-                .name(request.getName())
-                .tag(request.getTag())
-                .build();
-
-        return productDataModelToProductDtoMapper.map(
-                productDao.save(productDtoToProductDataModelMapper.map(product))
-        );
-    }
-
-    @Override
-    @Transactional
-    public com.example.cseventapi.dto.Product getExistingOrCreateNewProduct(CreateNewProductRequest request) {
+    public com.example.cseventapi.dto.Product getExistingOrCreateNewProduct(UUID organizationId, CreateOrUpdateProductRequest request) {
         com.example.cseventapi.dto.Product product;
 
         Optional<Product> productModel = productDao.findByNameAndTagAndUnitAndOrganizationId(
                 request.getName(),
                 request.getTag(),
                 request.getUnit(),
-                request.getOrganizationId()
+                organizationId
         );
 
         if (productModel.isPresent()) {
             product = productDataModelToProductDtoMapper.map(productModel.get());
         } else {
             product = com.example.cseventapi.dto.Product.builder()
-                    .organizationId(request.getOrganizationId())
+                    .organizationId(organizationId)
                     .unit(request.getUnit())
                     .name(request.getName())
                     .tag(request.getTag())
@@ -133,14 +111,14 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
-    private Double getTotalProductAmount(UUID organizationId, UUID productId) {
+    @Override
+    @Transactional
+    public Double getTotalProductAmount(UUID productId) {
         Number result = (Number) entityManager.createNativeQuery(
                         "select sum(amount) from products p " +
                                 "join product_warehouse pw on p.id = pw.product_id " +
-                                "where p.organization_id = :organizationId " +
                                 "and p.id = :productId"
-                ).setParameter("organizationId", organizationId)
-                .setParameter("productId", productId)
+                ).setParameter("productId", productId)
                 .getSingleResult();
         return result != null ? result.doubleValue() : 0.0;
     }

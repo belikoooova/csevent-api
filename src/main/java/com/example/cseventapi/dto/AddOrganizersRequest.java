@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventIdRequest {
-    @JsonProperty("event_id")
-    private UUID eventId;
+public class AddOrganizersRequest {
+    @JsonProperty("organizer_ids")
+    private List<UUID> organizerIds;
 }

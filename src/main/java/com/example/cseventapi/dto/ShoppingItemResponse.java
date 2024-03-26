@@ -7,16 +7,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FilterProductsRequest {
-    private List<ProductTag> tags;
+public class ShoppingItemResponse {
+    @JsonProperty("product_id")
+    private UUID productId;
 
-    @JsonProperty("organization_id")
-    private UUID organizationId;
+    private String name;
+
+    private ProductTag tag;
+
+    private String unit;
+
+    private Double amount;
+
+    private Double price;
+
+    @JsonProperty("is_purchased")
+    private Boolean isPurchased;
 }

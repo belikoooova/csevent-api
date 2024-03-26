@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public interface CocktailService {
     @Transactional
-    List<CocktailWithIngredientsResponse> getAll(EventIdRequest request);
+    List<CocktailWithIngredientsResponse> getAll(UUID eventId);
 
     @Transactional
-    Cocktail create(CreateOrUpdateCocktailRequest request);
+    Cocktail create(UUID eventId, CreateOrUpdateCocktailRequest request);
 
     @Transactional
     Cocktail update(UUID cocktailId, CreateOrUpdateCocktailRequest request);
@@ -26,12 +26,11 @@ public interface CocktailService {
     void deleteProduct(UUID cocktailId, UUID productId);
 
     @Transactional
-    List<ShortProductResponse> getProductsForAutocompleteField(UUID cocktailId);
+    List<ShortProductResponse> getProductsForAutocompleteField(UUID organizationId, UUID cocktailId);
 
     @Transactional
-    Product saveNewProductInCocktail(UUID cocktailId, CreateNewProductRequest request);
+    Product saveNewProductInCocktail(UUID organizationId, UUID cocktailId, UUID eventId, CreateOrUpdateProductRequest request);
 
-    // TODO: Factory Method
     @Transactional
-    Product updateProduct(UUID cocktailId, UpdateProductRequest request);
+    Product updateProduct(UUID cocktailId, UUID productId, CreateOrUpdateProductRequest request);
 }
