@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,19 +31,19 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public List<Warehouse> findAllByOrganisationId(OrganizationIdRequest request) {
-        return warehouseDao.findAllByOrganizationId(request.getOrganizationId()).stream()
+    public List<Warehouse> findAllByOrganisationId(UUID organizationId) {
+        return warehouseDao.findAllByOrganizationId(organizationId).stream()
                 .map(warehouseDataModelToWarehouseDtoMapper::map)
                 .toList();
     }
 
     @Override
     @Transactional
-    public Warehouse create(CreateWarehouseRequest request) {
+    public Warehouse create(UUID organizationId, CreateWarehouseRequest request) {
         Warehouse warehouse = Warehouse.builder()
                 .address(request.getAddress())
                 .name(request.getName())
-                .organizationId(request.getOrganizationId())
+                .organizationId(organizationId)
                 .build();
 
         return warehouseDataModelToWarehouseDtoMapper.map(
@@ -68,16 +67,16 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getProductsForAutocompleteField(UUID warehouseId) {
+    public List<ShortProductResponse> getProductsForAutocompleteField(UUID organizationId, UUID warehouseId) {
         return getProductResponsesForAutocompleteField(
-                warehouseDao.findById(warehouseId).get().getOrganizationId(),
+                organizationId,
                 warehouseId
         );
     }
 
     @Override
     @Transactional
-    public Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductRequest request) {
+    public Product saveNewProductOnWarehouse(UUID organizaionId, UUID warehouseId, CreateOrUpdateProductRequest request) {
         int countWithSameName = entityManager.createNativeQuery(
                         "select count(*) from products p " +
                                 "join product_warehouse pw on p.id = pw.product_id " +
@@ -90,7 +89,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new ProductWithSameNameAlreadyInWarehouseException();
         }
 
-        Product savedProduct = productService.getExistingOrCreateNewProduct(request);
+        Product savedProduct = productService.getExistingOrCreateNewProduct(organizaionId, request);
 
         addProductToWarehouse(savedProduct.getId(), warehouseId, request.getAmount());
 
@@ -99,8 +98,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     @Transactional
-    public Product update(UUID warehouseId, UpdateProductRequest request) {
-        Product product = productDataModelToProductDtoMapper.map(productDao.findById(request.getProductId()).get());
+    public Product update(UUID warehouseId, UUID productId, CreateOrUpdateProductRequest request) {
+        Product product = productDataModelToProductDtoMapper.map(productDao.findById(productId).get());
 
         product.setName(request.getName());
         product.setUnit(request.getUnit());
@@ -110,7 +109,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 "set amount = :amount " +
                 "where warehouse_id = :warehouseId and product_id = :productId")
                 .setParameter("warehouseId", warehouseId)
-                .setParameter("productId", request.getProductId())
+                .setParameter("productId", productId)
                 .setParameter("amount", request.getAmount())
                 .executeUpdate();
 

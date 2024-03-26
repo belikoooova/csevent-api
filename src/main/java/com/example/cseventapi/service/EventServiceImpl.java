@@ -23,8 +23,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<ShortEventResponse> getAll(OrganizationIdRequest request) {
-        return eventDao.findAllByOrganizationId(request.getOrganizationId()).stream()
+    public List<ShortEventResponse> getAll(UUID organizationId) {
+        return eventDao.findAllByOrganizationId(organizationId).stream()
                 .map(event -> ShortEventResponse.builder()
                         .name(event.getName())
                         .color(event.getColor())
@@ -37,17 +37,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event get(UUID id) {
-        return eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
+    public Event get(UUID eventId) {
+        return eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
     }
 
     @Override
     @Transactional
-    public Event create(CreateOrUpdateEventRequest request) {
+    public Event create(UUID organizationId, CreateOrUpdateEventRequest request) {
         Event event = Event.builder()
                 .name(request.getName())
                 .address(request.getAddress())
-                .organizationId(request.getOrganizationId())
+                .organizationId(organizationId)
                 .guests(request.getGuests() == null ? 0 : request.getGuests())
                 .dateTime(request.getDateTime())
                 .color(request.getColor())
@@ -60,8 +60,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event update(UUID id, CreateOrUpdateEventRequest request) {
-        Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
+    public Event update(UUID eventId, CreateOrUpdateEventRequest request) {
+        Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
 
         event.setAddress(request.getAddress());
         event.setGuests(request.getGuests() == null ? 0 : request.getGuests());
@@ -75,18 +75,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Event delete(UUID id) {
-        Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(id).get());
+    public Event delete(UUID eventId) {
+        Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
 
-        eventDao.deleteById(id);
+        eventDao.deleteById(eventId);
 
         return event;
     }
 
     @Override
     @Transactional
-    public List<ShortUserResponse> getOrganizers(UUID eventId, OrganizationIdRequest request) {
-        List<ShortUserResponse> allMembers = organizationService.getAllMembers(request.getOrganizationId());
+    public List<ShortUserResponse> getOrganizers(UUID eventId, UUID organizationId) {
+        List<ShortUserResponse> allMembers = organizationService.getAllMembers(organizationId);
 
         return allMembers.stream()
                 .filter(response -> response.getTags().stream()
@@ -96,29 +96,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<ShortUserResponse> getNotOrganizers(UUID eventId, SearchNotOrganizerRequest request) {
-        List<ShortUserResponse> allMembers = organizationService.getAllMembers(request.getOrganizationId());
-
-        return allMembers.stream()
-                .filter(response -> response.getTags().stream()
-                        .noneMatch(tag -> tag.getEventId().equals(eventId)))
-                .filter(response -> response.getName().contains(
-                        request.getSubstring() == null
-                        ? ""
-                        : request.getSubstring()
-                ))
-                .toList();
-    }
-
-    @Override
-    @Transactional
-    public void addOrganizer(UUID eventId, AddOrganizerRequest request) {
-        entityManager.createNativeQuery(
-                "insert into user_event (user_id, event_id) " +
-                        "values (:userId, :eventId)"
-                ).setParameter("eventId", eventId)
-                .setParameter("userId", request.getOrganizerId())
-                .executeUpdate();
+    public void addOrganizers(UUID eventId, AddOrganizersRequest request) {
+        request.getOrganizerIds().forEach(
+                organizerId -> entityManager.createNativeQuery(
+                                "insert into user_event (user_id, event_id) " +
+                                         "values (:userId, :eventId) " +
+                                         "on conflict (user_id, event_id) do nothing"
+                        ).setParameter("eventId", eventId)
+                        .setParameter("userId", organizerId)
+                        .executeUpdate()
+        );
     }
 
     @Override

@@ -21,7 +21,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CocktailServiceImpl implements CocktailService {
     private final CocktailDao cocktailDao;
-    private final EventDao eventDao;
     private final ProductDao productDao;
     private final ProductService productService;
     private final EntityManager entityManager;
@@ -30,10 +29,11 @@ public class CocktailServiceImpl implements CocktailService {
     private final ProductDataModelToProductDtoMapper productDataModelToProductDtoMapper;
     private final ProductDtoToProductDataModelMapper productDtoToProductDataModelMapper;
 
+
     @Override
     @Transactional
-    public List<CocktailWithIngredientsResponse> getAll(EventIdRequest request) {
-        List<com.example.cseventapi.entity.Cocktail> cocktails = cocktailDao.findAllByEventId(request.getEventId());
+    public List<CocktailWithIngredientsResponse> getAll(UUID eventId) {
+        List<com.example.cseventapi.entity.Cocktail> cocktails = cocktailDao.findAllByEventId(eventId);
 
         List<CocktailWithIngredientsResponse> responses = new ArrayList<>();
 
@@ -46,9 +46,9 @@ public class CocktailServiceImpl implements CocktailService {
 
     @Override
     @Transactional
-    public Cocktail create(CreateOrUpdateCocktailRequest request) {
+    public Cocktail create(UUID eventId, CreateOrUpdateCocktailRequest request) {
         Cocktail cocktail = Cocktail.builder()
-                .eventId(request.getEventId())
+                .eventId(eventId)
                 .name(request.getName())
                 .type(request.getType())
                 .build();
@@ -142,61 +142,7 @@ public class CocktailServiceImpl implements CocktailService {
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getProductsForAutocompleteField(UUID cocktailId) {
-        return getProductResponsesForAutocompleteField(
-                eventDao.findById(cocktailDao.findById(cocktailId).get().getEventId()).get().getOrganizationId(),
-                cocktailId
-        );
-    }
-
-    @Override
-    @Transactional
-    public Product saveNewProductInCocktail(UUID cocktailId, CreateNewProductRequest request) {
-        int countWithSameName = (int) entityManager.createNativeQuery(
-                        "select count(*) from products p " +
-                                "join cocktail_product cp on p.id = cp.product_id " +
-                                "where cp.cocktail_id = :cocktailId and p.name = :name"
-                ).setParameter("name", request.getName())
-                .setParameter("cocktailId", cocktailId)
-                .getSingleResult();
-
-        if (countWithSameName != 0) {
-            throw new ProductWithSameNameAlreadyInCocktailException();
-        }
-
-        Product savedProduct = productService.getExistingOrCreateNewProduct(request);
-        UUID eventId = cocktailDao.findById(cocktailId).get().getEventId();
-
-        addProductToEvent(savedProduct.getId(), eventId);
-        addProductToCocktail(savedProduct.getId(), cocktailId, request.getAmount());
-
-        return savedProduct;
-    }
-
-    // TODO: Factory Method
-    @Override
-    @Transactional
-    public Product updateProduct(UUID cocktailId, UpdateProductRequest request) {
-        Product product = productDataModelToProductDtoMapper.map(productDao.findById(request.getProductId()).get());
-
-        product.setName(request.getName());
-        product.setUnit(request.getUnit());
-        product.setTag(request.getTag());
-
-        entityManager.createNativeQuery("update cocktail_product " +
-                        "set amount = :amount " +
-                        "where cocktail_id = :cocktailId and product_id = :productId")
-                .setParameter("cocktailId", cocktailId)
-                .setParameter("productId", request.getProductId())
-                .setParameter("amount", request.getAmount())
-                .executeUpdate();
-
-        return productDataModelToProductDtoMapper.map(
-                productDao.save(productDtoToProductDataModelMapper.map(product))
-        );
-    }
-
-    private List<ShortProductResponse> getProductResponsesForAutocompleteField(UUID organizationId, UUID cocktailId) {
+    public List<ShortProductResponse> getProductsForAutocompleteField(UUID organizationId, UUID cocktailId) {
         List<Object[]> results = entityManager.createNativeQuery(
                         "select p.id, p.name, p.unit, p.tag from products p " +
                                 "where p.organization_id = :organizationId and p.id not in (" +
@@ -209,6 +155,51 @@ public class CocktailServiceImpl implements CocktailService {
                 .getResultList();
 
         return mapToListShortProductResponse(results);
+    }
+
+    @Override
+    @Transactional
+    public Product saveNewProductInCocktail(UUID organizationId, UUID cocktailId, UUID eventId, CreateOrUpdateProductRequest request) {
+        int countWithSameName = (int) entityManager.createNativeQuery(
+                        "select count(*) from products p " +
+                                "join cocktail_product cp on p.id = cp.product_id " +
+                                "where cp.cocktail_id = :cocktailId and p.name = :name"
+                ).setParameter("name", request.getName())
+                .setParameter("cocktailId", cocktailId)
+                .getSingleResult();
+
+        if (countWithSameName != 0) {
+            throw new ProductWithSameNameAlreadyInCocktailException();
+        }
+
+        Product savedProduct = productService.getExistingOrCreateNewProduct(organizationId, request);
+
+        addProductToEvent(savedProduct.getId(), eventId);
+        addProductToCocktail(savedProduct.getId(), cocktailId, request.getAmount());
+
+        return savedProduct;
+    }
+
+    @Override
+    @Transactional
+    public Product updateProduct(UUID cocktailId, UUID productId, CreateOrUpdateProductRequest request) {
+        Product product = productDataModelToProductDtoMapper.map(productDao.findById(productId).get());
+
+        product.setName(request.getName());
+        product.setUnit(request.getUnit());
+        product.setTag(request.getTag());
+
+        entityManager.createNativeQuery("update cocktail_product " +
+                        "set amount = :amount " +
+                        "where cocktail_id = :cocktailId and product_id = :productId")
+                .setParameter("cocktailId", cocktailId)
+                .setParameter("productId", productId)
+                .setParameter("amount", request.getAmount())
+                .executeUpdate();
+
+        return productDataModelToProductDtoMapper.map(
+                productDao.save(productDtoToProductDataModelMapper.map(product))
+        );
     }
 
     private List<ShortProductResponse> mapToListShortProductResponse(List<Object[]> objects) {

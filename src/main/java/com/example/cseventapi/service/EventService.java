@@ -8,28 +8,25 @@ import java.util.UUID;
 
 public interface EventService {
     @Transactional
-    List<ShortEventResponse> getAll(OrganizationIdRequest request);
+    List<ShortEventResponse> getAll(UUID organizationId);
 
     @Transactional
-    Event get(UUID id);
+    Event get(UUID eventId);
 
     @Transactional
-    Event create(CreateOrUpdateEventRequest request);
+    Event create(UUID organizationId, CreateOrUpdateEventRequest request);
 
     @Transactional
-    Event update(UUID id, CreateOrUpdateEventRequest request);
+    Event update(UUID eventId, CreateOrUpdateEventRequest request);
 
     @Transactional
-    Event delete(UUID id);
+    Event delete(UUID eventId);
 
     @Transactional
-    List<ShortUserResponse> getOrganizers(UUID eventId, OrganizationIdRequest request);
+    List<ShortUserResponse> getOrganizers(UUID eventId, UUID organizationId);
 
     @Transactional
-    List<ShortUserResponse> getNotOrganizers(UUID eventId, SearchNotOrganizerRequest request);
-
-    @Transactional
-    void addOrganizer(UUID eventId, AddOrganizerRequest request);
+    void addOrganizers(UUID eventId, AddOrganizersRequest request);
 
     @Transactional
     void deleteOrganizer(UUID eventId, UUID organizerId);

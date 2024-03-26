@@ -24,17 +24,29 @@ public class ShoppingController {
     }
 
     @GetMapping("/{productId}")
-    public ShoppingItemInfoResponse get(@PathVariable UUID organizationId, @PathVariable UUID eventId, @PathVariable UUID productId) {
+    public ShoppingItemInfoResponse get(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID productId
+    ) {
         return shoppingService.getInfoAboutProduct(eventId, productId);
     }
 
     @PatchMapping("/{productId}")
-    public void updateIsPurchased(@PathVariable UUID organizationId, @PathVariable UUID eventId, @PathVariable UUID productId) {
+    public void updateIsPurchased(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID productId
+    ) {
         shoppingService.updatePurchased(eventId, productId);
     }
 
     @GetMapping("/{productId}/warehouses")
-    public ProductWithWarehousesResponse getWithWarehouses(@PathVariable UUID organizationId, @PathVariable UUID eventId, @PathVariable UUID productId) {
+    public ProductWithWarehousesResponse getWithWarehouses(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId,
+            @PathVariable UUID productId
+    ) {
         return productService.getProductWithWarehouses(productId);
     }
 }

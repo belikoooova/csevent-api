@@ -8,22 +8,22 @@ import java.util.UUID;
 
 public interface WarehouseService {
     @Transactional
-    List<Warehouse> findAllByOrganisationId(OrganizationIdRequest request);
+    List<Warehouse> findAllByOrganisationId(UUID organizationId);
 
     @Transactional
-    Warehouse create(CreateWarehouseRequest request);
+    Warehouse create(UUID organizationId, CreateWarehouseRequest request);
 
     @Transactional
     WarehouseWithProductsResponse getWarehouseWithProducts(UUID warehouseId);
 
     @Transactional
-    List<ShortProductResponse> getProductsForAutocompleteField(UUID warehouseId);
+    List<ShortProductResponse> getProductsForAutocompleteField(UUID organizationId, UUID warehouseId);
 
     @Transactional
-    Product saveNewProductOnWarehouse(UUID warehouseId, CreateNewProductRequest request);
+    Product saveNewProductOnWarehouse(UUID organizationId, UUID warehouseId, CreateOrUpdateProductRequest request);
 
     @Transactional
-    Product update(UUID warehouseId, UpdateProductRequest request);
+    Product update(UUID warehouseId, UUID productId, CreateOrUpdateProductRequest request);
 
     @Transactional
     Warehouse delete(UUID id);

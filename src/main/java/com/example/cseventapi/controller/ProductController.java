@@ -1,6 +1,7 @@
 package com.example.cseventapi.controller;
 
 import com.example.cseventapi.dto.*;
+import com.example.cseventapi.entity.ProductTag;
 import com.example.cseventapi.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,33 +11,39 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/organizations/{organizationId}/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ShortProductResponse> getAll(@RequestBody @Valid OrganizationIdRequest request) {
-        return productService.getProductsWithGeneralAmount(request);
+    public List<ShortProductResponse> getAll(@PathVariable UUID organizationId) {
+        return productService.getProductsWithGeneralAmount(organizationId);
     }
 
-    @GetMapping("/search")
-    public List<ShortProductResponse> getAllSearched(@RequestBody @Valid SearchProductRequest request) {
-        return productService.getSearchedListProduct(request);
+    @GetMapping("/search/{substring}")
+    public List<ShortProductResponse> getAllSearched(
+            @PathVariable UUID organizationId,
+            @PathVariable String substring
+    ) {
+        return productService.getSearchedListProduct(organizationId, substring);
     }
 
     @GetMapping("/filter")
-    public List<ShortProductResponse> getAllFiltered(@RequestBody @Valid FilterProductsRequest request) {
-        return productService.getFilteredListProduct(request);
+    public List<ShortProductResponse> getAllFiltered(
+            @PathVariable UUID organizationId,
+            @RequestBody @Valid List<ProductTag> tags
+    ) {
+        return productService.getFilteredListProduct(organizationId, tags);
     }
 
-    @GetMapping("/{id}")
-    public ProductWithWarehousesResponse get(@PathVariable UUID id) {
-        return productService.getProductWithWarehouses(id);
+    @GetMapping("/{productId}")
+    public ProductWithWarehousesResponse get(@PathVariable UUID organizationId, @PathVariable UUID productId) {
+        return productService.getProductWithWarehouses(productId);
     }
 
-    @DeleteMapping("/{id}")
-    public Product delete(@PathVariable UUID id) {
-        return productService.delete(id);
+    @DeleteMapping("/{productId}")
+    public Product delete(@PathVariable UUID organizationId, @PathVariable UUID productId) {
+        return productService.delete(productId);
     }
 }

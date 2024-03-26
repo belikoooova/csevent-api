@@ -10,59 +10,62 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("organizations/{organizationId}/events")
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public List<ShortEventResponse> getAll(@RequestBody @Valid OrganizationIdRequest request) {
-        return eventService.getAll(request);
+    public List<ShortEventResponse> getAll(@PathVariable UUID organizationId) {
+        return eventService.getAll(organizationId);
     }
 
-    @GetMapping("/{id}")
-    public Event get(@PathVariable UUID id) {
-        return eventService.get(id);
+    @GetMapping("/{eventId}")
+    public Event get(@PathVariable UUID eventId, @PathVariable UUID organizationId) {
+        return eventService.get(eventId);
     }
 
     @PostMapping("/create")
-    public Event create(@RequestBody @Valid CreateOrUpdateEventRequest request) {
-        return eventService.create(request);
+    public Event create(@PathVariable UUID organizationId, @RequestBody @Valid CreateOrUpdateEventRequest request) {
+        return eventService.create(organizationId, request);
     }
 
-    @PutMapping("/{id}")
-    public Event update(@PathVariable UUID id, @RequestBody @Valid CreateOrUpdateEventRequest request) {
-        return eventService.update(id, request);
+    @PutMapping("/{eventId}")
+    public Event update(
+            @PathVariable UUID eventId,
+            @RequestBody @Valid CreateOrUpdateEventRequest request,
+            @PathVariable UUID organizationId
+    ) {
+        return eventService.update(eventId, request);
     }
 
-    @DeleteMapping("/{id}")
-    public Event delete(@PathVariable UUID id) {
-        return eventService.delete(id);
+    @DeleteMapping("/{eventId}")
+    public Event delete(@PathVariable UUID eventId, @PathVariable UUID organizationId) {
+        return eventService.delete(eventId);
     }
 
-    @GetMapping("/{id}/organizers")
+    @GetMapping("/{eventId}/organizers")
     public List<ShortUserResponse> getOrganizers(
-            @PathVariable UUID id,
-            @RequestBody @Valid OrganizationIdRequest request
+            @PathVariable UUID organizationId,
+            @PathVariable UUID eventId
     ) {
-        return eventService.getOrganizers(id, request);
+        return eventService.getOrganizers(eventId, organizationId);
     }
 
-    @GetMapping("/{id}/not-organizers")
-    public List<ShortUserResponse> getNotOrganizers(
-            @PathVariable UUID id,
-            @RequestBody @Valid SearchNotOrganizerRequest request
-    ) {
-        return eventService.getNotOrganizers(id, request);
-    }
-
-    @PostMapping("/{id}/organizers")
-    public void addOrganizer(@PathVariable UUID id, @RequestBody @Valid AddOrganizerRequest request) {
-        eventService.addOrganizer(id, request);
+    @PostMapping("/{eventId}/organizers")
+    public void addOrganizers(
+            @PathVariable UUID eventId,
+            @RequestBody @Valid AddOrganizersRequest request,
+            @PathVariable UUID organizationId) {
+        eventService.addOrganizers(eventId, request);
     }
 
     @DeleteMapping("/{eventId}/organizers/{organizerId}")
-    public void deleteOrganizer(@PathVariable UUID eventId, @PathVariable UUID organizerId) {
+    public void deleteOrganizer(
+            @PathVariable UUID eventId,
+            @PathVariable UUID organizerId,
+            @PathVariable UUID organizationId
+    ) {
         eventService.deleteOrganizer(eventId, organizerId);
     }
 }
