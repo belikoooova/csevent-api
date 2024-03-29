@@ -77,6 +77,7 @@ public class EventServiceImpl implements EventService {
     public Event update(UUID eventId, CreateOrUpdateEventRequest request) {
         Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
 
+        event.setName(request.getName() == null ? "" : request.getName());
         event.setAddress(request.getAddress() == null ? "" : request.getAddress());
         event.setTheme(request.getTheme() == null ? "" : request.getTheme());
         event.setGuests(request.getGuests() == null ? 0 : request.getGuests());
