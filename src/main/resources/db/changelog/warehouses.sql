@@ -9,3 +9,12 @@ create table warehouses
     address             varchar(255),
     organization_id     uuid
 );
+
+--changeset Maria Belikova:2
+alter table warehouses
+alter column name
+set default '';
+
+alter table warehouses
+alter column address
+set default '';

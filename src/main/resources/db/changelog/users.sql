@@ -15,3 +15,12 @@ create table users
 --changeset Maria Belikova:2
 alter table users
 rename column photo_url to color;
+
+--changeset Maria Belikova:3
+alter table users
+alter column name
+set default '';
+
+alter table users
+alter column color
+set default 'fillBlue';

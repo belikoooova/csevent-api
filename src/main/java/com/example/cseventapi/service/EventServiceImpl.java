@@ -30,6 +30,7 @@ public class EventServiceImpl implements EventService {
                         .color(event.getColor())
                         .address(event.getAddress())
                         .id(event.getId())
+                        .theme(event.getTheme())
                         .dateTime(event.getDateTime())
                         .build())
                 .toList();
@@ -51,6 +52,7 @@ public class EventServiceImpl implements EventService {
                 .guests(request.getGuests() == null ? 0 : request.getGuests())
                 .dateTime(request.getDateTime())
                 .color(request.getColor())
+                .theme(request.getTheme())
                 .build();
 
         return eventDataModelToEventDtoMapper.map(
@@ -64,6 +66,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
 
         event.setAddress(request.getAddress());
+        event.setTheme(request.getTheme());
         event.setGuests(request.getGuests() == null ? 0 : request.getGuests());
         event.setDateTime(request.getDateTime());
         event.setColor(request.getColor());

@@ -10,3 +10,12 @@ create table products
     organization_id     uuid,
     tag                 varchar(255)
 );
+
+--changeset Maria Belikova:2
+alter table products
+alter column name
+set default '';
+
+alter table products
+alter column unit
+set default '';

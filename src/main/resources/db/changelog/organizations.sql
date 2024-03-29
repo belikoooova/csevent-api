@@ -14,3 +14,12 @@ create table organizations
 --changeset Maria Belikova:2
 alter table organizations
 add constraint organization_nickname_unique unique (nickname);
+
+--changeset Maria Belikova:3
+alter table organizations
+alter column title
+set default '';
+
+alter table organizations
+alter column nickname
+set default '';

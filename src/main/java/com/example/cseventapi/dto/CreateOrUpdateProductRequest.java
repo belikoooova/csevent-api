@@ -19,9 +19,11 @@ public class CreateOrUpdateProductRequest {
     private static final String POSITIVE_AMOUNT = "Количество должно быть неотрицательным";
 
     @NotBlank(message = NAME_NOT_BLANK)
+    @NotNull(message = NAME_NOT_BLANK)
     private String name;
 
     @NotBlank(message = UNIT_NOT_BLANK)
+    @NotNull(message = UNIT_NOT_BLANK)
     private String unit;
 
     @NotNull(message = AMOUNT_NOT_BLANK)

@@ -2,6 +2,7 @@ package com.example.cseventapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CreateOrUpdateEventRequest {
     private static final String NAME_NOT_BLANK = "Название не может быть пустым";
+    private static final String DATE_NOT_NULL = "Дата не может быть пустой";
     private static final String POSITIVE_AMOUNT = "Количество должно быть неотрицательным";
 
     @NotBlank(message = NAME_NOT_BLANK)
@@ -29,6 +31,7 @@ public class CreateOrUpdateEventRequest {
     private Integer guests;
 
     @JsonProperty("date_time")
+    @NotNull
     private String dateTime;
 
     private String color;

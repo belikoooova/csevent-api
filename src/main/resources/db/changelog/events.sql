@@ -28,3 +28,12 @@ using date_time::text;
 alter table events
 alter column date_time type varchar(255)
 using date_time::varchar(255);
+
+--changeset Maria Belikova:6
+alter table events
+alter column address
+set default '';
+
+alter table events
+alter column color
+set default 'fillBlue';

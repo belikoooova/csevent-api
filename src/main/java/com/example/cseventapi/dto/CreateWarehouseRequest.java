@@ -1,6 +1,7 @@
 package com.example.cseventapi.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class CreateWarehouseRequest {
     private static final String NAME_NOT_BLANK = "Название не может быть пустым";
 
     @NotBlank(message = NAME_NOT_BLANK)
+    @NotNull(message = NAME_NOT_BLANK)
     private String name;
 
     private String address;
