@@ -24,3 +24,8 @@ set default '';
 alter table users
 alter column color
 set default 'fillBlue';
+
+--changeset Maria Belikova:4
+alter table users
+alter column color
+set default 'fillBlue';

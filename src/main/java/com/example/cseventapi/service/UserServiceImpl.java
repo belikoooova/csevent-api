@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     public User updateUserData(UpdateUserDataRequest request) {
         User user = getCurrentUser();
         user.setName(request.getName());
-        user.setColor(request.getColor());
+        user.setColor(request.getColor() == null ? "fillBlue" : request.getColor());
         return userDao.save(user);
     }
 

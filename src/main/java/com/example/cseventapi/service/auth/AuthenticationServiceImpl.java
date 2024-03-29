@@ -25,6 +25,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
+                .color("fillBlue")
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
