@@ -18,6 +18,7 @@ public class EventServiceImpl implements EventService {
     private final EventDao eventDao;
     private final EntityManager entityManager;
     private final OrganizationService organizationService;
+    private final UserService userService;
     private final EventDataModelToEventDtoMapper eventDataModelToEventDtoMapper;
     private final EventDtoToEventDataModelMapper eventDtoToEventDataModelMapper;
 
@@ -55,9 +56,18 @@ public class EventServiceImpl implements EventService {
                 .theme(request.getTheme())
                 .build();
 
-        return eventDataModelToEventDtoMapper.map(
+        Event savedEvent = eventDataModelToEventDtoMapper.map(
                 eventDao.save(eventDtoToEventDataModelMapper.map(event))
         );
+
+        UUID creatorId = userService.getCurrentUser().getId();
+        entityManager.createNativeQuery(
+                "insert into user_event (user_id, event_id) " +
+                "values (:userId, :eventId) "
+        ).setParameter("userId", creatorId)
+        .setParameter("eventId", savedEvent.getId());
+
+        return savedEvent;
     }
 
     @Override
