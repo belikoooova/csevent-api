@@ -1,7 +1,6 @@
 package com.example.cseventapi.service;
 
 import com.example.cseventapi.dto.*;
-import com.example.cseventapi.entity.ProductTag;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

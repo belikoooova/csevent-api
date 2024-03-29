@@ -1,7 +1,6 @@
 package com.example.cseventapi.controller;
 
 import com.example.cseventapi.dto.*;
-import com.example.cseventapi.entity.ProductTag;
 import com.example.cseventapi.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
