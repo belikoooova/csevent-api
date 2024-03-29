@@ -21,6 +21,8 @@ public class CreateOrUpdateEventRequest {
     @NotBlank(message = NAME_NOT_BLANK)
     private String name;
 
+    private String theme;
+
     private String address;
 
     @PositiveOrZero(message = POSITIVE_AMOUNT)

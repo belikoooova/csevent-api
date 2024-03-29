@@ -18,6 +18,8 @@ public class Event {
 
     private String name;
 
+    private String theme;
+
     private String address;
 
     private Integer guests;

@@ -14,3 +14,7 @@ create table events (
 
 --changeset Maria Belikova:2
 alter table events alter column guests set default 0;
+
+--changeset Maria Belikova:3
+alter table events
+add column theme varchar(255) default '';
