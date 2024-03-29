@@ -16,25 +16,12 @@ import java.util.UUID;
 public class ProductController {
     private final ProductService productService;
 
-    @GetMapping
-    public List<ShortProductResponse> getAll(@PathVariable UUID organizationId) {
-        return productService.getProductsWithGeneralAmount(organizationId);
-    }
-
-    @GetMapping("/search")
-    public List<ShortProductResponse> getAllSearched(
+    @PatchMapping
+    public List<ShortProductResponse> getAll(
             @PathVariable UUID organizationId,
-            @RequestBody SearchRequest request
-    ) {
-        return productService.getSearchedListProduct(organizationId, request);
-    }
-
-    @GetMapping("/filter")
-    public List<ShortProductResponse> getAllFiltered(
-            @PathVariable UUID organizationId,
-            @RequestBody @Valid List<ProductTag> tags
-    ) {
-        return productService.getFilteredListProduct(organizationId, tags);
+            @RequestBody @Valid SearchAndFilterProductRequest request
+        ) {
+        return productService.getProductsWithGeneralAmount(organizationId, request);
     }
 
     @GetMapping("/{productId}")

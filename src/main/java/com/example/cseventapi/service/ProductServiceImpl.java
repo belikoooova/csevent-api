@@ -25,10 +25,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<ShortProductResponse> getProductsWithGeneralAmount(UUID organizationId) {
+    public List<ShortProductResponse> getProductsWithGeneralAmount(UUID organizationId, SearchAndFilterProductRequest request) {
         List<Product> products = productDao.findAllByOrganizationId(organizationId);
 
-        return products.stream()
+        List<ShortProductResponse> productResponses = products.stream()
                 .map(p -> ShortProductResponse.builder()
                         .id(p.getId())
                         .name(p.getName())
@@ -37,30 +37,11 @@ public class ProductServiceImpl implements ProductService {
                         .amount(getTotalProductAmount(p.getId()))
                         .build())
                 .toList();
-    }
 
-    @Override
-    @Transactional
-    public List<ShortProductResponse> getFilteredListProduct(UUID organizationId, List<ProductTag> tags) {
-        if (tags.isEmpty()) {
-            return getProductsWithGeneralAmount(organizationId);
-        }
-
-        return getProductsWithGeneralAmount(organizationId).stream()
-                .filter(p -> tags.contains(p.getTag()))
-                .toList();
-    }
-
-    @Override
-    @Transactional
-    public List<ShortProductResponse> getSearchedListProduct(UUID organizationId, SearchRequest request) {
-        if (request.getSubstring().isEmpty()) {
-            return getProductsWithGeneralAmount(organizationId);
-        }
-
-        return getProductsWithGeneralAmount(organizationId).stream()
-                .filter(p -> p.getName().toLowerCase().contains(request.getSubstring().toLowerCase()))
-                .toList();
+        return getSearchedListProduct(
+                getFilteredListProduct(productResponses, request.getTags()),
+                request.getSubstring()
+        );
     }
 
     @Override
@@ -139,5 +120,17 @@ public class ProductServiceImpl implements ProductService {
                         .amount((Double) o[3])
                         .build()
                 ).toList();
+    }
+
+    private List<ShortProductResponse> getFilteredListProduct(List<ShortProductResponse> productResponses, List<ProductTag> tags) {
+        return productResponses.stream()
+                .filter(p -> tags.contains(p.getTag()))
+                .toList();
+    }
+
+    private List<ShortProductResponse> getSearchedListProduct(List<ShortProductResponse> productResponses, String substring) {
+        return productResponses.stream()
+                .filter(p -> p.getName().toLowerCase().contains(substring.toLowerCase()))
+                .toList();
     }
 }

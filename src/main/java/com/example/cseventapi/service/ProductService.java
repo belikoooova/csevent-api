@@ -10,13 +10,7 @@ import java.util.UUID;
 public interface ProductService {
 
     @Transactional
-    List<ShortProductResponse> getProductsWithGeneralAmount(UUID organizationId);
-
-    @Transactional
-    List<ShortProductResponse> getFilteredListProduct(UUID organizationId, List<ProductTag> tags);
-
-    @Transactional
-    List<ShortProductResponse> getSearchedListProduct(UUID organizationId, SearchRequest request);
+    List<ShortProductResponse> getProductsWithGeneralAmount(UUID organizationId, SearchAndFilterProductRequest request);
 
     @Transactional
     ProductWithWarehousesResponse getProductWithWarehouses(UUID productId);
