@@ -18,3 +18,13 @@ alter table events alter column guests set default 0;
 --changeset Maria Belikova:3
 alter table events
 add column theme varchar(255) default '';
+
+--changeset Maria Belikova:4
+alter table events
+alter column date_time type varchar(255)
+using date_time::text;
+
+--changeset Maria Belikova:5
+alter table events
+alter column date_time type varchar(255)
+using date_time::varchar(255);

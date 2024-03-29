@@ -25,7 +25,7 @@ public class Event {
     private Integer guests;
 
     @JsonProperty("date_time")
-    private LocalDateTime dateTime;
+    private String dateTime;
 
     private String color;
 

@@ -21,7 +21,9 @@ public class ShortEventResponse {
     private String address;
 
     @JsonProperty("date_time")
-    private LocalDateTime dateTime;
+    private String dateTime;
+
+    private String theme;
 
     private String color;
 }

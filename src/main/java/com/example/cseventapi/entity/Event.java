@@ -27,7 +27,9 @@ public class Event {
     private Integer guests;
 
     @Column(name = "date_time")
-    private LocalDateTime dateTime;
+    private String dateTime;
+
+    private String theme;
 
     private String color;
 
