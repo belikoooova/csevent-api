@@ -21,6 +21,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final String DEFAULT_COLOR = "fillBlue";
+
     private final UserDao userDao;
     private final EntityManager entityManager;
 
@@ -56,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public User updateUserData(UpdateUserDataRequest request) {
         User user = getCurrentUser();
         user.setName(request.getName());
-        user.setColor(request.getColor() == null ? "fillBlue" : request.getColor());
+        user.setColor(request.getColor() == null ? DEFAULT_COLOR : request.getColor());
         return userDao.save(user);
     }
 

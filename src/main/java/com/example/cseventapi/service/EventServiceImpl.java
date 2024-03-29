@@ -15,6 +15,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    private static final String DEFAULT_COLOR = "fillBlue";
+
     private final EventDao eventDao;
     private final EntityManager entityManager;
     private final OrganizationService organizationService;
@@ -28,11 +30,11 @@ public class EventServiceImpl implements EventService {
         return eventDao.findAllByOrganizationId(organizationId).stream()
                 .map(event -> ShortEventResponse.builder()
                         .name(event.getName())
-                        .color(event.getColor())
-                        .address(event.getAddress())
+                        .color(event.getColor() == null ? DEFAULT_COLOR : event.getColor())
+                        .address(event.getAddress() == null ? "" : event.getAddress())
                         .id(event.getId())
-                        .theme(event.getTheme())
-                        .dateTime(event.getDateTime())
+                        .theme(event.getTheme() == null ? "" : event.getTheme())
+                        .dateTime(event.getDateTime() == null ? "" : event.getDateTime())
                         .build())
                 .toList();
     }
@@ -48,12 +50,12 @@ public class EventServiceImpl implements EventService {
     public Event create(UUID organizationId, CreateOrUpdateEventRequest request) {
         Event event = Event.builder()
                 .name(request.getName())
-                .address(request.getAddress())
+                .address(request.getAddress() == null ? "" : request.getAddress())
                 .organizationId(organizationId)
                 .guests(request.getGuests() == null ? 0 : request.getGuests())
-                .dateTime(request.getDateTime())
-                .color(request.getColor())
-                .theme(request.getTheme())
+                .dateTime(request.getDateTime() == null ? "" : request.getDateTime())
+                .color(request.getColor() == null ? DEFAULT_COLOR : request.getAddress())
+                .theme(request.getTheme() == null ? "" : request.getTheme())
                 .build();
 
         Event savedEvent = eventDataModelToEventDtoMapper.map(
@@ -75,11 +77,11 @@ public class EventServiceImpl implements EventService {
     public Event update(UUID eventId, CreateOrUpdateEventRequest request) {
         Event event = eventDataModelToEventDtoMapper.map(eventDao.findById(eventId).get());
 
-        event.setAddress(request.getAddress());
-        event.setTheme(request.getTheme());
+        event.setAddress(request.getAddress() == null ? "" : request.getAddress());
+        event.setTheme(request.getTheme() == null ? "" : request.getTheme());
         event.setGuests(request.getGuests() == null ? 0 : request.getGuests());
-        event.setDateTime(request.getDateTime());
-        event.setColor(request.getColor());
+        event.setDateTime(request.getDateTime() == null ? "" : request.getDateTime());
+        event.setColor(request.getColor() == null ? DEFAULT_COLOR : request.getColor());
 
         return eventDataModelToEventDtoMapper.map(
                 eventDao.save(eventDtoToEventDataModelMapper.map(event))

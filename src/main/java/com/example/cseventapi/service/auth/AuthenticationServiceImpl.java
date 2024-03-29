@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+    private static final String DEFAULT_COLOR = "fillBlue";
+
     private final UserService userService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -25,7 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
-                .color("fillBlue")
+                .color(DEFAULT_COLOR)
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
