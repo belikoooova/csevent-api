@@ -33,6 +33,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("org.jsoup:jsoup:1.17.2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

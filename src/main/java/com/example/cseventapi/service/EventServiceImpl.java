@@ -67,7 +67,8 @@ public class EventServiceImpl implements EventService {
                 "insert into user_event (user_id, event_id) " +
                 "values (:userId, :eventId) "
         ).setParameter("userId", creatorId)
-        .setParameter("eventId", savedEvent.getId());
+        .setParameter("eventId", savedEvent.getId())
+        .executeUpdate();
 
         return savedEvent;
     }
